@@ -1,0 +1,32 @@
+/* Hallmark · design.md tokens for React Native · oklch converted to HSL · companion · 2026-10-17 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 38% 96%;        /* paper */
+    --foreground: 30 15% 14%;        /* ink */
+    --card: 40 35% 92%;              /* paper-2 */
+    --card-foreground: 30 15% 14%;
+    --popover: 40 35% 92%;
+    --popover-foreground: 30 15% 14%;
+    --primary: 42 78% 68%;           /* accent marigold */
+    --primary-foreground: 30 15% 14%;/* accent-ink */
+    --secondary: 38 30% 86%;         /* paper-3 */
+    --secondary-foreground: 30 15% 14%;
+    --muted: 38 30% 86%;
+    --muted-foreground: 30 10% 40%;  /* ink-2 */
+    --accent: 24 62% 58%;            /* accent-2 peach */
+    --accent-foreground: 42 38% 96%;
+    --destructive: 10 70% 50%;
+    --destructive-foreground: 42 38% 96%;
+    --border: 40 25% 85%;            /* rule */
+    --input: 40 25% 85%;
+    --ring: 24 70% 45%;              /* focus */
+    --mood-calm: 290 45% 85%;
+    --mood-grow: 125 35% 72%;
+    --mood-warm: 15 60% 88%;
+    --radius: 20px;
+  }
+}
