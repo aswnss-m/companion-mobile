@@ -17,7 +17,7 @@ module.exports = {
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
         ink: "hsl(var(--foreground))", "ink-2": "hsl(var(--muted-foreground))", rule: "hsl(var(--border))",
         paper: "hsl(var(--background))", "paper-2": "hsl(var(--card))", "paper-3": "hsl(var(--secondary))",
-        "accent-2": "hsl(var(--accent))", "bubble-1": "#F2DFD8", "bubble-2": "#E6DBEF", "bubble-3": "#D6E6D2", "bubble-4": "#F3E1B5", "tint-1": "#F2DFD8", "tint-2": "#E6DBEF", "tint-3": "#D6E6D2", "tint-4": "#F3E1B5", "mood-calm": "hsl(var(--mood-calm))", "mood-grow": "hsl(var(--mood-grow))", "mood-warm": "hsl(var(--mood-warm))",
+        "accent-2": "hsl(var(--accent))", "bubble-1": "hsl(var(--tint-1))", "bubble-2": "hsl(var(--tint-2))", "bubble-3": "hsl(var(--tint-3))", "bubble-4": "hsl(var(--tint-4))", "tint-1": "hsl(var(--tint-1))", "tint-2": "hsl(var(--tint-2))", "tint-3": "hsl(var(--tint-3))", "tint-4": "hsl(var(--tint-4))", chip: "hsl(var(--chip) / <alpha-value>)", "chip-ink": "hsl(var(--chip-ink))", "mood-calm": "hsl(var(--mood-calm))", "mood-grow": "hsl(var(--mood-grow))", "mood-warm": "hsl(var(--mood-warm))",
       },
       borderRadius: { card: "20px", pill: "999px", input: "14px", chip: "8px", lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
       fontFamily: {

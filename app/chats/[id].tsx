@@ -9,6 +9,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import { Bloom } from "@/components/bloom";
 import { Chat } from "@/components/chat";
+import { Mascot } from "@/components/mascot";
 import { BackLink, Cta } from "@/components/cta";
 import { EmptyState } from "@/components/recent-row";
 import { RankChip } from "@/components/sol-card";
@@ -16,16 +17,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { api, type Chat as ChatRow, type ScenarioResult, type Sol } from "@/lib/api";
 import { useStartScenario } from "@/lib/scenario";
+import { useColors } from "@/lib/theme";
 import { useApi } from "@/lib/use-api";
-
-const INK = "#2B2520";
 
 function Points({ title, items, tint, Icon, index }: { title: string; items: string[]; tint: string; Icon: typeof Check; index?: number }) {
   const entering = useMemo(() => (index == null ? undefined : staggered(index)), [index]); // only when the user just triggered the grade
+  const colors = useColors();
   return (
     <Animated.View entering={entering} className={`gap-2 rounded-card p-5 ${tint}`}>
       <Text className="mb-1 font-sans-semibold">{title}</Text>
-      {items.map((t) => <View key={t} className="flex-row gap-2"><Icon size={16} color={INK} style={{ marginTop: 4 }} /><Text className="flex-1 leading-relaxed">{t}</Text></View>)}
+      {items.map((t) => <View key={t} className="flex-row gap-2"><Icon size={16} color={colors.ink} style={{ marginTop: 4 }} /><Text className="flex-1 leading-relaxed">{t}</Text></View>)}
     </Animated.View>
   );
 }
@@ -39,6 +40,7 @@ export default function ChatPage() {
   const [busy, setBusy] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [open, setOpen] = useState(true);
+  const colors = useColors();
 
   async function finish() {
     setBusy(true);
@@ -74,6 +76,7 @@ export default function ChatPage() {
           <Text className="mt-1 mb-6 font-serif text-3xl">How it went</Text>
           <Animated.View entering={graded ? FADE_IN_DOWN : undefined} className="overflow-hidden rounded-card bg-card p-6">
             <Bloom />
+            <View className="mb-4"><Mascot state={result.score >= 50 ? "happy" : "sad"} height={28} /></View>
             <Text className="font-sans-semibold text-[64px] leading-none">{result.score}</Text>
             <Text className="mt-1 text-sm text-ink-2">out of 100</Text>
             <Text className="mt-5 leading-relaxed">{result.summary}</Text>
@@ -102,7 +105,7 @@ export default function ChatPage() {
           <View className="mt-2 rounded-input bg-card px-4 py-3">
             <PressableScale row onPress={() => setOpen((o) => !o)} className="flex-row items-center justify-between gap-2" accessibilityRole="button" accessibilityState={{ expanded: open }}>
               <Text className="shrink text-sm font-sans-medium">{scenario.title}</Text>
-              {open ? <ChevronUp size={16} color={INK} /> : <ChevronDown size={16} color={INK} />}
+              {open ? <ChevronUp size={16} color={colors.ink} /> : <ChevronDown size={16} color={colors.ink} />}
             </PressableScale>
             {open && (
               <Animated.View entering={FADE_IN} exiting={FADE_OUT}>

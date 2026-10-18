@@ -10,6 +10,7 @@ import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { api, BASE_TRAITS, type Sol, type Trait } from "@/lib/api";
 import { FADE_IN, FADE_OUT } from "@/lib/motion";
+import { useColors } from "@/lib/theme";
 
 const isBase = (title: string) => BASE_TRAITS.some((b) => b.toLowerCase() === title.trim().toLowerCase());
 const NEW = "new";
@@ -20,6 +21,7 @@ export function TraitStack({ solId, traits: initial, onSaved }: { solId: string;
   const [editing, setEditing] = useState<string | null>(null); // trait id, NEW, or null
   const [draft, setDraft] = useState({ title: "", body: "" });
   const [busy, setBusy] = useState(false);
+  const colors = useColors();
 
   async function save(next: Trait[]) {
     setBusy(true);
@@ -61,7 +63,7 @@ export function TraitStack({ solId, traits: initial, onSaved }: { solId: string;
         <View className="rounded-card bg-card p-5">{editor(true)}</View>
       ) : (
         <PressableScale row onPress={() => open()} className="flex-row items-center justify-center gap-2 rounded-card border border-rule px-5 py-4">
-          <Plus size={16} color="#2B2520" /><Text className="font-sans-medium">Add a trait</Text>
+          <Plus size={16} color={colors.ink} /><Text className="font-sans-medium">Add a trait</Text>
         </PressableScale>
       )}
     </View>

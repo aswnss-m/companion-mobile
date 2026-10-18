@@ -12,8 +12,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { useReducedMotion } from "react-native-reanimated";
 import { authClient } from "@/lib/auth-client";
+import { getThemePref, useColors } from "@/lib/theme";
+import { colorScheme } from "nativewind";
 
 SplashScreen.preventAutoHideAsync();
+{ const pref = getThemePref(); if (pref !== "system") colorScheme.set(pref); } // "system" needs no override on a fresh process
 
 export default function Root() {
   const [loaded] = useFonts({ Fraunces_500Medium, Fraunces_600SemiBold, PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold });
@@ -23,13 +26,14 @@ export default function Root() {
   const [ready, setReady] = useState(false);
   if (!ready && (!isPending || session)) setReady(true);
   const reduced = useReducedMotion();
+  const colors = useColors();
   useEffect(() => { if (loaded && ready) SplashScreen.hideAsync(); }, [loaded, ready]);
   if (!loaded || !ready) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F7F3EA" }, animation: reduced ? "fade" : "default" }}>
+      <StatusBar style="auto" />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.paper }, animation: reduced ? "fade" : "default" }}>
         <Stack.Protected guard={!session} redirectTo="/">
           <Stack.Screen name="(auth)/sign-in" />
           <Stack.Screen name="(auth)/sign-up" />

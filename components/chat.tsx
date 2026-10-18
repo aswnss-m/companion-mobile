@@ -62,7 +62,7 @@ export function Chat({ id, api: path, solId, solName, initialMessages, placehold
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <View className="px-4 pb-3"><Mascot state={busy ? "thinking" : error ? "idle" : "happy"} height={28} />{header}</View>
+      <View className="px-4 pb-3"><Mascot state={busy ? "thinking" : error ? "sad" : "idle"} height={28} />{header}</View>
       <ScrollView ref={list} className="flex-1" onContentSizeChange={() => list.current?.scrollToEnd({ animated: true })} contentContainerClassName="gap-3 px-4 py-4" keyboardShouldPersistTaps="handled">
         {messages.map((m, idx) => (
           <Animated.View key={m.id} entering={idx >= mounted ? BUBBLE_IN : undefined} className={cn("max-w-[85%] rounded-card px-4 py-3", m.role === "user" ? "self-end bg-paper-3" : "self-start bg-card")}>

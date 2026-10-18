@@ -15,7 +15,7 @@ export function RecentRow({ avatar, title, meta, chip, onPress }: Props) {
         <Text className="font-sans-medium" numberOfLines={1}>{title}</Text>
         <Text className="text-sm text-ink-2" numberOfLines={1}>{meta}</Text>
       </View>
-      {chip && <View className="rounded-chip bg-[#D6875126] px-2 py-0.5"><Text className="text-xs font-sans-medium text-accent-2">{chip}</Text></View>}
+      {chip && <View className="rounded-chip bg-chip/15 px-2 py-0.5"><Text className="text-xs font-sans-medium text-chip-ink">{chip}</Text></View>}
     </PressableScale>
   );
 }

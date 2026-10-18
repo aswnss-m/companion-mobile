@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 
 export function RankChip({ readiness }: { readiness: number | null }) {
   return (
-    <View className="self-start rounded-chip bg-[#D6875126] px-2 py-0.5">
-      <Text className="text-xs font-sans-medium text-accent-2">{rankLabel(readiness)}{readiness != null && ` · ${readiness}`}</Text>
+    <View className="self-start rounded-chip bg-chip/15 px-2 py-0.5">
+      <Text className="text-xs font-sans-medium text-chip-ink">{rankLabel(readiness)}{readiness != null && ` · ${readiness}`}</Text>
     </View>
   );
 }

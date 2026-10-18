@@ -27,7 +27,7 @@ export function SolBubble({ sol, index, onPress, badge, preview, title, time }: 
           </View>
           <Text className="text-sm text-ink-2" numberOfLines={2}>{preview ?? sol.lastMessage ?? sol.relationship}</Text>
         </View>
-        {b != null && <View className="rounded-chip bg-[#D6875126] px-2 py-0.5"><Text className="text-xs font-sans-medium text-accent-2">{b}</Text></View>}
+        {b != null && <View className="rounded-chip bg-chip/15 px-2 py-0.5"><Text className="text-xs font-sans-medium text-chip-ink">{b}</Text></View>}
       </View>
     </PressableScale>
   );

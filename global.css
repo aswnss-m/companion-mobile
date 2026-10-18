@@ -28,5 +28,41 @@
     --mood-grow: 125 35% 72%;
     --mood-warm: 15 60% 88%;
     --radius: 20px;
+    --tint-1: 15 50% 90%;
+    --tint-2: 273 38% 90%;
+    --tint-3: 105 28% 87%;
+    --tint-4: 42 72% 83%;
+    --chip: 24 62% 58%;
+    --chip-ink: 24 70% 34%;
+  }
+  .dark:root {
+    --background: 250 12% 10%;
+    --foreground: 40 19% 94%;
+    --card: 248 11% 14%;
+    --card-foreground: 40 19% 94%;
+    --popover: 248 11% 14%;
+    --popover-foreground: 40 19% 94%;
+    --primary: 40 59% 63%;
+    --primary-foreground: 30 15% 14%;
+    --secondary: 247 10% 18%;
+    --secondary-foreground: 40 19% 94%;
+    --muted: 247 10% 18%;
+    --muted-foreground: 40 6% 62%;
+    --accent: 21 52% 61%;
+    --accent-foreground: 250 12% 10%;
+    --destructive: 10 60% 60%;
+    --destructive-foreground: 250 12% 10%;
+    --border: 247 8% 21%;
+    --input: 247 8% 21%;
+    --ring: 24 70% 65%;
+    --mood-calm: 263 20% 31%;
+    --mood-grow: 120 15% 27%;
+    --mood-warm: 0 18% 30%;
+    --tint-1: 355 12% 21%;
+    --tint-2: 258 16% 21%;
+    --tint-3: 125 12% 19%;
+    --tint-4: 41 16% 18%;
+    --chip: 21 52% 61%;
+    --chip-ink: 21 60% 74%;
   }
 }
