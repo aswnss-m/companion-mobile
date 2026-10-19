@@ -33,7 +33,8 @@ function Points({ title, items, tint, Icon, index }: { title: string; items: str
 
 export default function ChatPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, error, reload } = useApi<{ chat: ChatRow; sol: Sol }>(`/api/chats/${id}`);
+  // Chat seeds useChat once and the server saves whatever history it sends back, so live messages only: no cache.
+  const { data, error, reload } = useApi<{ chat: ChatRow; sol: Sol }>(`/api/chats/${id}`, "none");
   const { start, busy: starting } = useStartScenario();
   const [graded, setResult] = useState<(ScenarioResult & { readiness?: number | null }) | null>(null);
   const result: (ScenarioResult & { readiness?: number | null }) | null = graded ?? data?.chat.result ?? null;

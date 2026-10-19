@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { LifeBuoy, MessageSquareText, UserPlus } from "lucide-react-native";
@@ -11,11 +11,13 @@ import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { chatChip, chatLabel, rankLabel, timeAgo } from "@/lib/readiness";
 import { useStartScenario } from "@/lib/scenario";
+import { useColors } from "@/lib/theme";
 import { useRecentChats } from "@/lib/use-recent";
 
 export default function Dashboard() {
   const { data: session } = authClient.useSession();
-  const { sols, chats, error, refreshing, refresh } = useRecentChats();
+  const { sols, chats, error, refreshing, refresh, fetching } = useRecentChats();
+  const colors = useColors();
   const { start, busy } = useStartScenario();
   const next = sols && [...sols].sort((a, b) => (a.readiness ?? -1) - (b.readiness ?? -1))[0];
   return (
@@ -36,8 +38,8 @@ export default function Dashboard() {
         )}
 
         <View className="mt-10">
-          <View className="mb-3 flex-row items-baseline justify-between"><Text className="font-sans-semibold">Recent</Text><Link href="/practise" className="font-sans text-sm text-ink-2">See all</Link></View>
-          {error ? <EmptyState text={error} actionLabel="Retry" onPress={refresh} />
+          <View className="mb-3 flex-row items-baseline justify-between"><View className="flex-row items-center gap-2"><Text className="font-sans-semibold">Recent</Text>{fetching && chats && <ActivityIndicator size="small" color={colors.ink2} />}</View><Link href="/practise" className="font-sans text-sm text-ink-2">See all</Link></View>
+          {error && !chats ? <EmptyState text={error} actionLabel="Retry" onPress={refresh} />
             : !chats ? <RecentSkeleton />
             : chats.length === 0 ? <EmptyState text="Nothing yet. Scenarios and coach chats land here." actionLabel={next ? "Start a scenario" : "New Sol"} onPress={next ? () => start(next.id) : () => router.push("/sols/new")} />
             : <View className="gap-2">{chats.slice(0, 6).map((c) => <RecentRow key={c.id} avatar={c.sol.name} title={chatLabel(c)} meta={`${c.sol.name} · ${timeAgo(c.createdAt)}`} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} />)}</View>}

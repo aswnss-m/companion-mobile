@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { useReducedMotion } from "react-native-reanimated";
 import { authClient } from "@/lib/auth-client";
+import { cacheOwner } from "@/lib/cache";
 import { getThemePref, useColors } from "@/lib/theme";
 import { colorScheme } from "nativewind";
 
@@ -25,6 +26,7 @@ export default function Root() {
   // flip isPending back on, which must not blank the navigator.
   const [ready, setReady] = useState(false);
   if (!ready && (!isPending || session)) setReady(true);
+  if (session) cacheOwner(session.user.id); // in render, not an effect: screens read the cache in their useState initializers
   const reduced = useReducedMotion();
   const colors = useColors();
   useEffect(() => { if (loaded && ready) SplashScreen.hideAsync(); }, [loaded, ready]);

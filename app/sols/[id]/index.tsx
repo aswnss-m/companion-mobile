@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ScrollView, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Fingerprint, LifeBuoy, MessageSquareText } from "lucide-react-native";
@@ -17,7 +17,7 @@ import { useApi } from "@/lib/use-api";
 
 export default function SolPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, error, reload } = useApi<SolDetail>(`/api/sols/${id}`);
+  const { data, error, reload, fresh, refreshing, refresh } = useApi<SolDetail>(`/api/sols/${id}`, "always"); // TraitStack PATCHes the whole list, so never trust a cached copy
   const { start, busy } = useStartScenario();
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const characterY = useRef(0);
@@ -27,9 +27,9 @@ export default function SolPage() {
   const past = data?.scenarios.filter((c) => c !== open) ?? [];
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <ScrollView ref={scroll} contentContainerClassName="px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled">
+      <ScrollView ref={scroll} contentContainerClassName="px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
         <BackLink />
-        {error ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : !data ? <Skeleton className="h-40 rounded-card" /> : (
+        {error && !data ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : !data ? <Skeleton className="h-40 rounded-card" /> : (
           <>
             <Text className="text-ink-2">{data.sol.relationship}</Text>
             <Text className="mt-1 font-serif text-4xl">{data.sol.name}</Text>
@@ -56,7 +56,8 @@ export default function SolPage() {
 
             <View className="mt-10 gap-3" onLayout={(e) => (characterY.current = e.nativeEvent.layout.y)}>
               <Text className="font-sans-semibold">Character</Text>
-              <TraitStack key={data.sol.updatedAt} solId={data.sol.id} traits={data.sol.traits} onSaved={reload} />
+              {/* TraitStack PATCHes the whole list, so never seed it from a possibly stale cache */}
+              {fresh ? <TraitStack key={data.sol.updatedAt} solId={data.sol.id} traits={data.sol.traits} onSaved={reload} /> : error ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : <Skeleton className="h-40 rounded-card" />}
             </View>
           </>
         )}

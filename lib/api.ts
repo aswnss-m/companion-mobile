@@ -1,15 +1,19 @@
 import { fetch as expoFetch } from "expo/fetch";
 import { API_URL, authClient } from "./auth-client";
+import { invalidateCache } from "./cache";
 
 export const AI_MISSING = "No AI key yet. Add ANTHROPIC_API_KEY to web/.env.local and restart the server.";
 
 /** fetch against the Next.js API with the better-auth session cookie attached (credentials must be 'omit'). */
 export async function apiFetch(path: string, init: RequestInit = {}) {
-  return expoFetch(`${API_URL}${path}`, {
+  const res = await expoFetch(`${API_URL}${path}`, {
     ...init,
     credentials: "omit",
     headers: { "Content-Type": "application/json", ...(init.headers as Record<string, string>), Cookie: await authClient.getCookie() },
   } as never);
+  // any write can change any list; after the response so a GET racing the write stays stale. Chat streams also invalidate on finish.
+  if ((init.method ?? "GET") !== "GET") invalidateCache();
+  return res;
 }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {

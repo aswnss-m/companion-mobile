@@ -12,6 +12,7 @@ import { Mascot } from "@/components/mascot";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { AI_MISSING, api, apiFetch } from "@/lib/api";
+import { invalidateCache } from "@/lib/cache";
 import { cn } from "@/lib/utils";
 
 const PULSE = { from: { opacity: 0.25 }, "50%": { opacity: 1 }, to: { opacity: 0.25 } };
@@ -40,7 +41,7 @@ export function Chat({ id, api: path, solId, solName, initialMessages, placehold
     transport: new DefaultChatTransport({ api: path, fetch: ((url, init) => apiFetch(String(url), init)) as typeof fetch }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     onError: () => setInput((v) => v || draft.current),
-    onFinish: ({ isError }) => { if (!isError) draft.current = ""; },
+    onFinish: ({ isError }) => { if (!isError) draft.current = ""; invalidateCache(); }, // the server saves the turn as the stream ends
   });
   const busy = status === "submitted" || status === "streaming";
 

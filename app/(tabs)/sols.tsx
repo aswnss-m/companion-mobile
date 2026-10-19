@@ -31,7 +31,7 @@ export default function Sols() {
             </View>
           </View>
         }
-        ListEmptyComponent={error ? <EmptyState text={error} actionLabel="Retry" onPress={refresh} /> : !sols ? <Skeleton className="h-24 rounded-card" /> : <EmptyState text="No one yet. Add the first person you want to talk to." actionLabel="New Sol" onPress={() => router.push("/sols/new")} />}
+        ListEmptyComponent={error && !sols ? <EmptyState text={error} actionLabel="Retry" onPress={refresh} /> : !sols ? <Skeleton className="h-24 rounded-card" /> : <EmptyState text="No one yet. Add the first person you want to talk to." actionLabel="New Sol" onPress={() => router.push("/sols/new")} />}
       />
     </SafeAreaView>
   );

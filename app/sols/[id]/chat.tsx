@@ -28,7 +28,7 @@ export default function CoachHistory() {
       <ScrollView contentContainerClassName="px-4 pt-4 pb-10">
         <BackLink />
         <Text className="font-serif text-4xl">Ask for help</Text>
-        {error ? <View className="mt-6"><EmptyState text={error} actionLabel="Retry" onPress={reload} /></View> : !data ? <Skeleton className="mt-6 h-40 rounded-card" /> : (
+        {error && !data ? <View className="mt-6"><EmptyState text={error} actionLabel="Retry" onPress={reload} /></View> : !data ? <Skeleton className="mt-6 h-40 rounded-card" /> : (
           <>
             <Text className="mt-1 text-ink-2">Coaching for {data.sol.name}</Text>
             <Cta label={busy ? "Opening…" : "New chat"} disabled={busy} onPress={newChat} className="mt-6" />
