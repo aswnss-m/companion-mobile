@@ -24,7 +24,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type Trait = { id: string; title: string; body: string };
 export const BASE_TRAITS = ["Who they are", "How they talk", "What they care about", "Avoid", "Notes"];
-export type Sol = { id: string; name: string; relationship: string; traits: Trait[]; readiness: number | null; lastMessage?: string | null; createdAt: string; updatedAt: string };
+export type Sol = { id: string; name: string; relationship: string; gender: "male" | "female" | "undisclosed"; traits: Trait[]; readiness: number | null; lastMessage?: string | null; createdAt: string; updatedAt: string };
 export type Scenario = { title: string; setting: string; goal: string; openingLine: string };
 export type ScenarioResult = { score: number; summary: string; wentWell: string[]; tryNext: string[] };
 export type Chat = { id: string; solId: string; kind: "coach" | "scenario"; messages: import("ai").UIMessage[]; scenario: Scenario | null; result: ScenarioResult | null; endedAt: string | null; createdAt: string };

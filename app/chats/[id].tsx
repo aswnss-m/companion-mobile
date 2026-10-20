@@ -77,9 +77,13 @@ export default function ChatPage() {
           <Text className="mt-1 mb-6 font-serif text-3xl">How it went</Text>
           <Animated.View entering={graded ? FADE_IN_DOWN : undefined} className="overflow-hidden rounded-card bg-card p-6">
             <Bloom />
-            <View className="mb-4"><Mascot state={result.score >= 50 ? "happy" : "sad"} height={28} /></View>
-            <Text className="font-sans-semibold text-[64px] leading-none">{result.score}</Text>
-            <Text className="mt-1 text-sm text-ink-2">out of 100</Text>
+            <View className="flex-row items-start justify-between">
+              <View>
+                <Text className="font-sans-semibold text-[64px] leading-none">{result.score}</Text>
+                <Text className="mt-1 text-sm text-ink-2">out of 100</Text>
+              </View>
+              <Mascot state={result.score >= 50 ? "happy" : "sad"} height={28} />
+            </View>
             <Text className="mt-5 leading-relaxed">{result.summary}</Text>
             {result.readiness != null && <View className="mt-5 flex-row items-center gap-2"><Text className="text-sm">Readiness with {sol.name}:</Text><RankChip readiness={result.readiness} /></View>}
           </Animated.View>
