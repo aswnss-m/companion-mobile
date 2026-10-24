@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Bloom } from "@/components/bloom";
 import { BackLink, Cta } from "@/components/cta";
@@ -23,7 +24,7 @@ export default function ForgotPassword() {
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
+      <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
         <View className="h-52 justify-between overflow-hidden p-6"><Bloom /><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
         <View className="gap-5 px-4">
           <BackLink />
@@ -36,7 +37,7 @@ export default function ForgotPassword() {
             </>
           )}
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

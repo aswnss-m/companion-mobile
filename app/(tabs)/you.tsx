@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, RefreshControl, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Cta } from "@/components/cta";
 import { SolGrabDialog, type Grab } from "@/components/sol-grab-dialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { api } from "@/lib/api";
-import { authClient } from "@/lib/auth-client";
+import { API_URL, authClient } from "@/lib/auth-client";
 import { clearCache } from "@/lib/cache";
 import { timeAgo } from "@/lib/readiness";
 import { getThemePref, setThemePref, type ThemePref } from "@/lib/theme";
@@ -20,7 +21,7 @@ const status = (g: GrabLink) =>
     : g.answerCount >= g.maxAnswers ? `Full · ${g.answerCount} of ${g.maxAnswers} answered` : `${g.answerCount} of ${g.maxAnswers} answered`;
 
 export default function You() {
-  const { data: session } = authClient.useSession();
+  const { data: session, refetch: refetchSession } = authClient.useSession();
   const [pref, setPref] = useState(getThemePref);
   const choose = (p: ThemePref) => { setThemePref(p); setPref(p); };
   const [pw, setPw] = useState({ current: "", next: "" });
@@ -28,11 +29,12 @@ export default function You() {
   // better-auth's own flows; the emails (verification, "password changed") go out from its hooks on the server
   async function resend() {
     setBusy("verify");
-    const { error } = await authClient.sendVerificationEmail({ email: session!.user.email, callbackURL: "/app/you" });
+    const { error } = await authClient.sendVerificationEmail({ email: session!.user.email, callbackURL: `${API_URL}/verified` });
     setBusy(null);
     Alert.alert(error ? "Couldn't send the email" : "Check your inbox", error?.message ?? "Tap the link in the email to confirm your address.");
   }
-  const { data: links, reload: reloadLinks } = useApi<GrabLink[]>("/api/grabs");
+  const { data: links, reload: reloadLinks, refresh: refreshLinks, refreshing } = useApi<GrabLink[]>("/api/grabs");
+  const onRefresh = () => { refetchSession(); refreshLinks(); };
   const revoke = (g: GrabLink) => Alert.alert("Revoke this link?", "It stops working now. Sols it already made stay.", [
     { text: "Cancel", style: "cancel" },
     { text: "Revoke", style: "destructive", onPress: () => api(`/api/grabs/${g.id}`, { method: "DELETE" }).then(reloadLinks, (e: Error) => Alert.alert("Couldn't revoke that link", e.message)) },
@@ -47,7 +49,7 @@ export default function You() {
   }
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-paper">
-      <ScrollView contentContainerClassName="px-4 pt-8 pb-10" keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView contentContainerClassName="px-4 pt-8 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <Text className="mb-8 font-serif text-3xl">You</Text>
         <View className="rounded-card bg-card p-6">
           <Text className="text-lg font-sans-semibold">{session?.user.name}</Text>
@@ -84,7 +86,7 @@ export default function You() {
           </View>
         </View>
         <Cta ghost label="Sign out" className="mt-6 self-start" onPress={() => authClient.signOut().then(clearCache)} />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

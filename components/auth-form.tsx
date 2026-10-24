@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import Animated from "react-native-reanimated";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Haptics from "expo-haptics";
 import { FADE_IN } from "@/lib/motion";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,7 +11,7 @@ import { Cta } from "@/components/cta";
 import { Mascot } from "@/components/mascot";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { authClient } from "@/lib/auth-client";
+import { API_URL, authClient } from "@/lib/auth-client";
 
 export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [name, setName] = useState("");
@@ -21,14 +22,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 
   async function submit() {
     setBusy(true); setError(null);
-    const res = mode === "sign-up" ? await authClient.signUp.email({ name, email, password }) : await authClient.signIn.email({ email, password });
+    const res = mode === "sign-up" ? await authClient.signUp.email({ name, email, password, callbackURL: `${API_URL}/verified` }) : await authClient.signIn.email({ email, password });
     setBusy(false);
     if (res.error) { setError(res.error.message ?? "Something went wrong"); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } // on success the session guard in app/_layout moves to "/"
   }
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
+      <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
         <View className="h-52 justify-between overflow-hidden p-6"><Bloom /><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
         <View className="gap-5 px-4">
           <Text className="font-serif text-3xl">{mode === "sign-up" ? "Create an account" : "Welcome back"}</Text>
@@ -43,7 +44,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
             <Link href={mode === "sign-up" ? "/sign-in" : "/sign-up"} className="text-ink underline">{mode === "sign-up" ? "Sign in" : "Create an account"}</Link>
           </Text>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

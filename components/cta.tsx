@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 /** design.md CTA: primary marigold pill with ink text, or ghost with hairline rule. Press feedback via PressableScale. */
 export function Cta({ ghost, label, className, ...props }: Omit<PressableProps, "children" | "style"> & { ghost?: boolean; label: string; className?: string }) {
   return (
-    <PressableScale accessibilityRole="button" {...props} className={cn("flex-row items-center justify-center rounded-pill px-6 py-3.5", ghost ? "border border-rule bg-transparent" : "bg-primary", className)}>
+    <PressableScale accessibilityRole="button" {...props} className={cn("flex-row items-center justify-center rounded-button px-6 py-3.5", ghost ? "border border-rule bg-transparent" : "bg-primary", className)}>
       <Text className={ghost ? "font-sans-medium text-ink" : "font-sans-medium text-primary-foreground"}>{label}</Text>
     </PressableScale>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BackLink, Cta } from "@/components/cta";
@@ -27,18 +28,18 @@ export default function NewSol() {
   }
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <ScrollView contentContainerClassName="gap-5 px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView contentContainerClassName="gap-5 px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled">
         <BackLink />
         <View className="flex-row flex-wrap items-center justify-between gap-3"><Text className="font-serif text-3xl">New Sol</Text><SolGrabDialog /></View>
         <View className="gap-1.5"><Text className="text-sm font-sans-medium">Their name</Text><Input value={name} onChangeText={setName} maxLength={80} className="rounded-input" /></View>
         <View className="gap-1.5"><Text className="text-sm font-sans-medium">Who they are to you</Text><Input value={relationship} onChangeText={setRelationship} placeholder="my manager, a friend's friend, my sister" maxLength={80} className="rounded-input" /></View>
         <View className="gap-1.5">
           <Text className="text-sm font-sans-medium">Their gender</Text>
-          <View className="flex-row flex-wrap gap-2">
+          <View className="flex-row gap-1 rounded-[18px] border border-rule p-1">
             {GENDER_OPTIONS.map(([value, label]) => (
               <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: gender === value }} onPress={() => setGender(value)}
-                className={`rounded-pill border px-4 py-2 ${gender === value ? "border-primary bg-primary" : "border-rule"}`}>
-                <Text className={gender === value ? "text-primary-foreground" : "text-ink"}>{label}</Text>
+                className={`flex-1 items-center justify-center rounded-[14px] py-2.5 ${gender === value ? "bg-primary" : "active:bg-paper-3"}`}>
+                <Text className={`text-center text-sm ${gender === value ? "text-primary-foreground" : "text-ink"}`}>{label}</Text>
               </Pressable>
             ))}
           </View>
@@ -49,7 +50,7 @@ export default function NewSol() {
           <Text className="text-sm text-ink-2">This becomes their character document. You can edit it any time.</Text>
         </View>
         <Cta label={busy ? "Writing their character…" : "Create Sol"} disabled={busy || !name.trim() || !relationship.trim() || !gender || !about.trim()} onPress={submit} />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

@@ -1,5 +1,6 @@
 import { useRef } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
+import { RefreshControl, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Fingerprint, LifeBuoy, MessageSquareText } from "lucide-react-native";
@@ -20,7 +21,7 @@ export default function SolPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, error, reload, fresh, refreshing, refresh } = useApi<SolDetail>(`/api/sols/${id}`, "always"); // TraitStack PATCHes the whole list, so never trust a cached copy
   const { start, busy } = useStartScenario();
-  const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const scroll = useRef<React.ComponentRef<typeof KeyboardAwareScrollView>>(null);
   const characterY = useRef(0);
   const open = data?.scenarios.find(isOpen);
   const graded = data?.scenarios.filter((c) => c.result) ?? [];
@@ -28,7 +29,7 @@ export default function SolPage() {
   const past = data?.scenarios.filter((c) => c !== open) ?? [];
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <ScrollView ref={scroll} contentContainerClassName="px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+      <KeyboardAwareScrollView ref={scroll} contentContainerClassName="px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
         <BackLink />
         {error && !data ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : !data ? <Skeleton className="h-40 rounded-card" /> : (
           <>
@@ -63,7 +64,7 @@ export default function SolPage() {
             </View>
           </>
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
