@@ -9,6 +9,7 @@ import { EmptyState, RecentRow } from "@/components/recent-row";
 import { RankChip, ReadinessBar } from "@/components/sol-card";
 import { TraitStack } from "@/components/trait-stack";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhatsAppImport } from "@/components/whatsapp-import";
 import { Text } from "@/components/ui/text";
 import { type SolDetail } from "@/lib/api";
 import { chatChip, chatLabel, isOpen, timeAgo } from "@/lib/readiness";
@@ -45,6 +46,7 @@ export default function SolPage() {
                 : <ActionCard tint={4} icon={MessageSquareText} title="Start a scenario" subtitle="Companion sets the scene and plays them" busy={busy ? "Setting the scene…" : undefined} onPress={() => start(data.sol.id)} />}
               <ActionCard tint={3} icon={LifeBuoy} title="Ask for help" subtitle={`Coach chat about ${data.sol.name}`} href={`/sols/${id}/chat`} />
               <ActionCard tint={2} icon={Fingerprint} title="Character" subtitle={`${data.sol.traits.length} traits`} onPress={() => scroll.current?.scrollTo({ y: characterY.current, animated: true })} />
+              <WhatsAppImport solId={data.sol.id} solName={data.sol.name} onSaved={reload} />
             </View>
 
             <View className="mt-10 gap-2">
