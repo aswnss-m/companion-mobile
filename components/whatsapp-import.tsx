@@ -139,13 +139,13 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
 
           {error && <Text accessibilityRole="alert" className="text-sm text-destructive">{error}</Text>}
 
-          <DialogFooter className="flex-row items-center justify-end gap-2">
-            {busy && step.at !== "file" && <Text className="mr-auto text-sm text-ink-2">{busy}</Text>}
+          {step.at !== "file" && <DialogFooter className="flex-row items-center justify-end gap-2">
+            {busy && <Text className="mr-auto text-sm text-ink-2">{busy}</Text>}
             {step.at === "who" && <Cta label="Read the chat" disabled={!!busy || !sender} onPress={analyse} className="px-6 py-2.5" />}
             {step.at === "facts" && (step.facts.length
               ? <Cta label={`Add ${kept.size} to character`} disabled={!!busy || !kept.size} onPress={() => save(step.facts)} className="px-6 py-2.5" />
               : <Cta label="Done" onPress={() => reset(false)} className="px-6 py-2.5" />)}
-          </DialogFooter>
+          </DialogFooter>}
         </DialogContent>
       </Dialog>
     </>
