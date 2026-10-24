@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
-import { MessagesSquare } from "lucide-react-native";
+import { FileArchive, MessagesSquare } from "lucide-react-native";
 import { ActionCard } from "@/components/action-card";
 import { Cta } from "@/components/cta";
 import { PressableScale } from "@/components/pressable-scale";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Text } from "@/components/ui/text";
 import { api } from "@/lib/api";
+import { useColors } from "@/lib/theme";
 import { pickChatText } from "@/lib/whatsapp";
 
 type Person = { name: string; count: number };
 type Fact = { trait: string; fact: string; evidence: string };
-type Step = { at: "file" } | { at: "who"; people: Person[] } | { at: "facts"; facts: Fact[] };
+type Pick = "newest" | "oldest" | "middle" | "random"; // web/lib/whatsapp.ts PICKS
+type Step = { at: "file" } | { at: "who"; people: Person[]; total: number; limit: number } | { at: "facts"; facts: Fact[] };
+const PICK_OPTIONS: { pick: Pick; title: string; hint: string }[] = [
+  { pick: "newest", title: "Newest", hint: "How they talk with you now" },
+  { pick: "oldest", title: "Oldest", hint: "How the chat started" },
+  { pick: "middle", title: "Middle", hint: "The stretch in between" },
+  { pick: "random", title: "Random", hint: "Stretches of 100 from all over" },
+];
 
 /** Import a WhatsApp "Export chat" file, like web's components/whatsapp-import.tsx: pick the file, say who the Sol is,
  *  keep the facts worth keeping. The chat text lives in this component while the dialog is open; only kept facts are saved. */
@@ -19,33 +27,35 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>({ at: "file" });
   const [text, setText] = useState("");
+  const colors = useColors();
   const [sender, setSender] = useState("");
+  const [pick, setPick] = useState<Pick>("newest");
   const [kept, setKept] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const read = (body: { text: string; sender?: string }) =>
-    api<{ participants?: Person[]; facts?: Fact[] }>(`/api/sols/${solId}/whatsapp`, { method: "POST", body: JSON.stringify(body) });
+  const read = (body: { text: string; sender?: string; pick?: Pick }) =>
+    api<{ participants?: Person[]; total?: number; limit?: number; facts?: Fact[] }>(`/api/sols/${solId}/whatsapp`, { method: "POST", body: JSON.stringify(body) });
 
   function reset(next: boolean) {
     setOpen(next);
     if (next) return;
-    setStep({ at: "file" }); setText(""); setSender(""); setError(null); setBusy(null);
+    setStep({ at: "file" }); setText(""); setSender(""); setPick("newest"); setError(null); setBusy(null);
   }
   async function attempt(label: string, work: () => Promise<void>) {
     setBusy(label); setError(null);
     await work().catch((e: Error) => setError(e.message));
     setBusy(null);
   }
-  const pick = () => attempt("Opening the chat…", async () => {
+  const openFile = () => attempt("Opening the chat…", async () => {
     const t = await pickChatText();
     if (!t) return;
-    const { participants = [] } = await read({ text: t });
+    const { participants = [], total = 0, limit = Infinity } = await read({ text: t });
     const guess = participants.find((p) => p.name.toLowerCase().includes(solName.toLowerCase()) || solName.toLowerCase().includes(p.name.toLowerCase()));
-    setText(t); setSender(guess?.name ?? ""); setStep({ at: "who", people: participants });
+    setText(t); setSender(guess?.name ?? ""); setStep({ at: "who", people: participants, total, limit });
   });
   const analyse = () => attempt("Reading the chat…", async () => {
-    const { facts = [] } = await read({ text, sender });
+    const { facts = [] } = await read({ text, sender, pick });
     setText(""); // done with the chat itself
     setKept(new Set(facts.map((_, i) => i)));
     setStep({ at: "facts", facts });
@@ -74,21 +84,44 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
 
           {step.at === "file" && (
             <View className="gap-3">
-              <Cta label={busy ?? "Choose the export"} disabled={!!busy} onPress={pick} />
+              <PressableScale accessibilityRole="button" accessibilityLabel="Choose the chat export" disabled={!!busy} onPress={openFile}
+                className="items-center gap-3 rounded-card border-2 border-dashed border-rule bg-card px-6 py-10">
+                <View className="h-12 w-12 items-center justify-center rounded-chip bg-paper"><FileArchive size={24} color={colors.ink} /></View>
+                <View className="items-center">
+                  <Text className="font-sans-semibold">{busy ?? "Choose the export"}</Text>
+                  {!busy && <Text className="text-sm text-ink-2">.zip or .txt from Files</Text>}
+                </View>
+              </PressableScale>
               <Text className="text-sm text-ink-2">The chat is read once to pick out traits, then dropped. It is sent to the AI for that read and never saved.</Text>
             </View>
           )}
 
           {step.at === "who" && (
-            <View className="gap-2">
-              {step.people.map((p) => (
-                <PressableScale key={p.name} row accessibilityRole="radio" accessibilityState={{ checked: sender === p.name }} onPress={() => setSender(p.name)}
-                  className={`flex-row items-center justify-between rounded-card p-4 ${sender === p.name ? "bg-tint-1" : "bg-card"}`}>
-                  <Text className="font-sans-medium">{p.name}</Text>
-                  <Text className="text-sm text-ink-2">{p.count} messages</Text>
-                </PressableScale>
-              ))}
-            </View>
+            <ScrollView className="max-h-[28rem]" contentContainerClassName="gap-5">
+              <View className="gap-2">
+                {step.people.map((p) => (
+                  <PressableScale key={p.name} row accessibilityRole="radio" accessibilityState={{ checked: sender === p.name }} onPress={() => setSender(p.name)}
+                    className={`flex-row items-center justify-between rounded-card p-4 ${sender === p.name ? "bg-tint-1" : "bg-card"}`}>
+                    <Text className="font-sans-medium">{p.name}</Text>
+                    <Text className="text-sm text-ink-2">{p.count} messages</Text>
+                  </PressableScale>
+                ))}
+              </View>
+              {step.total > step.limit && (
+                <View className="gap-2">
+                  <Text className="text-sm font-sans-medium">The chat has {step.total.toLocaleString()} messages. Companion reads {step.limit.toLocaleString()}. Which ones?</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {PICK_OPTIONS.map((o) => (
+                      <PressableScale key={o.pick} row accessibilityRole="radio" accessibilityState={{ checked: pick === o.pick }} onPress={() => setPick(o.pick)}
+                        className={`w-[48%] rounded-card p-4 ${pick === o.pick ? "bg-tint-2" : "bg-card"}`}>
+                        <Text className="font-sans-semibold">{o.title}</Text>
+                        <Text className="text-sm text-ink-2">{o.hint}</Text>
+                      </PressableScale>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </ScrollView>
           )}
 
           {step.at === "facts" && step.facts.length > 0 && (
