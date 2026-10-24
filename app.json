@@ -2,7 +2,7 @@
   "expo": {
     "name": "Companion",
     "slug": "companion",
-    "version": "1.0.0",
+    "version": "0.5.0",
     "orientation": "portrait",
     "scheme": "companion",
     "icon": "./assets/icon.png",
