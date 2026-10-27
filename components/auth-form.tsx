@@ -12,6 +12,7 @@ import { Mascot } from "@/components/mascot";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { API_URL, authClient } from "@/lib/auth-client";
+import { startOnboarding } from "@/lib/onboarding";
 
 export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [name, setName] = useState("");
@@ -22,15 +23,17 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 
   async function submit() {
     setBusy(true); setError(null);
+    startOnboarding(mode === "sign-up"); // before the call: the session guard can land on Home before it resolves
     const res = mode === "sign-up" ? await authClient.signUp.email({ name, email, password, callbackURL: `${API_URL}/verified` }) : await authClient.signIn.email({ email, password });
     setBusy(false);
-    if (res.error) { setError(res.error.message ?? "Something went wrong"); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } // on success the session guard in app/_layout moves to "/"
+    if (res.error) { startOnboarding(false); setError(res.error.message ?? "Something went wrong"); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } // on success the session guard in app/_layout moves to "/"
   }
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
+      <Bloom bottom />
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
-        <View className="h-52 justify-between overflow-hidden p-6"><Bloom /><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
+        <View className="h-52 justify-between p-6"><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
         <View className="gap-5 px-4">
           <Text className="font-serif text-3xl">{mode === "sign-up" ? "Create an account" : "Welcome back"}</Text>
           {mode === "sign-up" && <View className="gap-1.5"><Text className="text-sm font-sans-medium">Your name</Text><Input value={name} onChangeText={setName} autoComplete="name" className="rounded-input" /></View>}

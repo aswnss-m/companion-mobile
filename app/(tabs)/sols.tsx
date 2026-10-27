@@ -20,6 +20,7 @@ export default function Sols() {
         data={sols ?? []}
         keyExtractor={(s) => s.id}
         renderItem={({ item, index }) => <SolBubble sol={item} index={index} />}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerClassName="gap-3 p-4 pb-10"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
         ListHeaderComponent={

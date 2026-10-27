@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
@@ -6,12 +7,16 @@ import { ActionCard } from "@/components/action-card";
 import { Mascot } from "@/components/mascot";
 import { EmptyState, RecentRow, RecentSkeleton } from "@/components/recent-row";
 import { SolCard } from "@/components/sol-card";
+import { TraitsNudge } from "@/components/traits-nudge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import type { Me } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+import { takeOnboarding } from "@/lib/onboarding";
 import { chatChip, chatLabel, rankLabel, timeAgo } from "@/lib/readiness";
 import { useStartScenario } from "@/lib/scenario";
 import { useColors } from "@/lib/theme";
+import { useApi } from "@/lib/use-api";
 import { useRecentChats } from "@/lib/use-recent";
 
 export default function Dashboard() {
@@ -19,10 +24,13 @@ export default function Dashboard() {
   const { sols, chats, error, refreshing, refresh, fetching } = useRecentChats();
   const colors = useColors();
   const { start, busy } = useStartScenario();
+  const { data: me, reload: reloadMe } = useApi<Me>("/api/me/traits");
+  useEffect(() => { if (takeOnboarding()) router.push("/me?welcome=1"); }, []);
   const next = sols && [...sols].sort((a, b) => (a.readiness ?? -1) - (b.readiness ?? -1))[0];
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-paper">
-      <ScrollView contentContainerClassName="px-4 pt-8 pb-10" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="px-4 pt-8 pb-10" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { refresh(); reloadMe(); }} />}>
+        <TraitsNudge missing={!!me && !me.traits} />
         <View className="flex-row items-center justify-between"><Text className="text-ink-2">Hi, {session?.user.name.split(" ")[0]}</Text><Mascot state={next ? "idle" : "happy"} height={22} /></View>
         <Text className="mt-1 font-serif text-3xl">Who&apos;s on your mind?</Text>
         <Text className="mb-8 font-serif text-3xl text-ink-2">Pick someone to practise with.</Text>

@@ -47,6 +47,7 @@ export default function Root() {
           <Stack.Screen name="sols/[id]/index" />
           <Stack.Screen name="sols/[id]/chat" />
           <Stack.Screen name="chats/[id]" />
+          <Stack.Screen name="me" />
         </Stack.Protected>
       </Stack>
       <PortalHost />

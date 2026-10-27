@@ -6,7 +6,8 @@ import { Cta } from "@/components/cta";
 import { SolGrabDialog, type Grab } from "@/components/sol-grab-dialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { api } from "@/lib/api";
+import { router } from "expo-router";
+import { api, type Me } from "@/lib/api";
 import { API_URL, authClient } from "@/lib/auth-client";
 import { clearCache } from "@/lib/cache";
 import { timeAgo } from "@/lib/readiness";
@@ -34,7 +35,8 @@ export default function You() {
     Alert.alert(error ? "Couldn't send the email" : "Check your inbox", error?.message ?? "Tap the link in the email to confirm your address.");
   }
   const { data: links, reload: reloadLinks, refresh: refreshLinks, refreshing } = useApi<GrabLink[]>("/api/grabs");
-  const onRefresh = () => { refetchSession(); refreshLinks(); };
+  const { data: me, refresh: refreshMe } = useApi<Me>("/api/me/traits");
+  const onRefresh = () => { refetchSession(); refreshLinks(); refreshMe(); };
   const revoke = (g: GrabLink) => Alert.alert("Revoke this link?", "It stops working now. Sols it already made stay.", [
     { text: "Cancel", style: "cancel" },
     { text: "Revoke", style: "destructive", onPress: () => api(`/api/grabs/${g.id}`, { method: "DELETE" }).then(reloadLinks, (e: Error) => Alert.alert("Couldn't revoke that link", e.message)) },
@@ -49,7 +51,7 @@ export default function You() {
   }
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-paper">
-      <KeyboardAwareScrollView contentContainerClassName="px-4 pt-8 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <KeyboardAwareScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="px-4 pt-8 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <Text className="mb-8 font-serif text-3xl">You</Text>
         <View className="rounded-card bg-card p-6">
           <Text className="text-lg font-sans-semibold">{session?.user.name}</Text>
@@ -58,6 +60,25 @@ export default function You() {
             {session && !session.user.emailVerified && <View className="rounded-chip bg-chip/15 px-2 py-0.5"><Text className="text-xs font-sans-medium text-chip-ink">Unverified</Text></View>}
           </View>
           {session && !session.user.emailVerified && <Cta ghost label={busy === "verify" ? "Sending…" : "Resend verification email"} disabled={busy !== null} onPress={resend} className="mt-4 self-start px-4 py-2" />}
+        </View>
+        <View className="mt-4 gap-3 rounded-card bg-card p-6">
+          <Text className="text-xs font-sans-semibold uppercase tracking-widest text-ink-2">Your character</Text>
+          {me?.traits ? (
+            <>
+              {me.traits.map((t) => (
+                <View key={t.id}>
+                  <Text className="text-xs font-sans-semibold uppercase tracking-widest text-ink-2">{t.title}</Text>
+                  <Text className="mt-1 text-sm" numberOfLines={3}>{t.body.replace(/^- /gm, "")}</Text>
+                </View>
+              ))}
+              <Cta ghost label="View and edit" onPress={() => router.push("/me")} className="self-start px-4 py-2" />
+            </>
+          ) : me && (
+            <>
+              <Text className="text-ink-2">Companion doesn&apos;t know you yet, so scenarios and scores are written for anyone.</Text>
+              <Cta label="Tell it about you" onPress={() => router.push("/me")} className="self-start px-5 py-2.5" />
+            </>
+          )}
         </View>
         <View className="mt-4 gap-3 rounded-card bg-card p-6">
           <Text className="text-xs font-sans-semibold uppercase tracking-widest text-ink-2">Password</Text>

@@ -18,7 +18,7 @@ export default function Practise() {
   const graded = chats?.filter((c) => c.kind === "scenario" && c.result);
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-paper">
-      <ScrollView contentContainerClassName="px-4 pt-8 pb-10" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="px-4 pt-8 pb-10" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
         <Text className="mb-2 font-serif text-3xl">Practise</Text>
         <Text className="mb-8 text-ink-2">Pick someone. Companion sets a scene and plays them; you reply as yourself.</Text>
 

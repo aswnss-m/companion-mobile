@@ -12,7 +12,7 @@ import { TraitStack } from "@/components/trait-stack";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WhatsAppImport } from "@/components/whatsapp-import";
 import { Text } from "@/components/ui/text";
-import { type SolDetail } from "@/lib/api";
+import { api, type Sol, type SolDetail } from "@/lib/api";
 import { chatChip, chatLabel, isOpen, timeAgo } from "@/lib/readiness";
 import { useStartScenario } from "@/lib/scenario";
 import { useApi } from "@/lib/use-api";
@@ -60,7 +60,7 @@ export default function SolPage() {
             <View className="mt-10 gap-3" onLayout={(e) => (characterY.current = e.nativeEvent.layout.y)}>
               <Text className="font-sans-semibold">Character</Text>
               {/* TraitStack PATCHes the whole list, so never seed it from a possibly stale cache */}
-              {fresh ? <TraitStack key={data.sol.updatedAt} solId={data.sol.id} traits={data.sol.traits} onSaved={reload} /> : error ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : <Skeleton className="h-40 rounded-card" />}
+              {fresh ? <TraitStack key={data.sol.updatedAt} traits={data.sol.traits} save={(traits) => api<Sol>(`/api/sols/${data.sol.id}`, { method: "PATCH", body: JSON.stringify({ traits }) }).then((s) => s.traits)} onSaved={reload} /> : error ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : <Skeleton className="h-40 rounded-card" />}
             </View>
           </>
         )}

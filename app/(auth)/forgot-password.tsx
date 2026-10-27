@@ -24,8 +24,9 @@ export default function ForgotPassword() {
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
+      <Bloom bottom />
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-12">
-        <View className="h-52 justify-between overflow-hidden p-6"><Bloom /><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
+        <View className="h-52 justify-between p-6"><Mascot /><Text className="text-lg text-ink-2">Say it here first.</Text></View>
         <View className="gap-5 px-4">
           <BackLink />
           <Text className="font-serif text-3xl">Reset your password</Text>

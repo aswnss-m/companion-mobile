@@ -8,15 +8,16 @@ import { PressableScale } from "@/components/pressable-scale";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
-import { api, BASE_TRAITS, type Sol, type Trait } from "@/lib/api";
+import { BASE_TRAITS, type Trait } from "@/lib/api";
 import { FADE_IN, FADE_OUT } from "@/lib/motion";
 import { useColors } from "@/lib/theme";
 
-const isBase = (title: string) => BASE_TRAITS.some((b) => b.toLowerCase() === title.trim().toLowerCase());
+const isBase = (title: string, base: string[]) => base.some((b) => b.toLowerCase() === title.trim().toLowerCase());
 const NEW = "new";
 
-/** The character as a stack of trait cards; each card edits on its own, every save PATCHes the whole list. */
-export function TraitStack({ solId, traits: initial, onSaved }: { solId: string; traits: Trait[]; onSaved?: () => void }) {
+/** The character as a stack of trait cards; each card edits on its own, every save sends the whole list to `save`
+ *  (a Sol's PATCH, or the user's own with `base` set to USER_TRAITS), which resolves to the saved list. */
+export function TraitStack({ traits: initial, save: send, base = BASE_TRAITS, onSaved }: { traits: Trait[]; save: (traits: Trait[]) => Promise<Trait[]>; base?: string[]; onSaved?: () => void }) {
   const [traits, setTraits] = useState(initial);
   const [editing, setEditing] = useState<string | null>(null); // trait id, NEW, or null
   const [draft, setDraft] = useState({ title: "", body: "" });
@@ -25,7 +26,7 @@ export function TraitStack({ solId, traits: initial, onSaved }: { solId: string;
 
   async function save(next: Trait[]) {
     setBusy(true);
-    try { const s = await api<Sol>(`/api/sols/${solId}`, { method: "PATCH", body: JSON.stringify({ traits: next }) }); setTraits(s.traits); setEditing(null); onSaved?.(); }
+    try { setTraits(await send(next)); setEditing(null); onSaved?.(); }
     catch { Alert.alert("Couldn't save"); }
     finally { setBusy(false); }
   }
@@ -33,7 +34,7 @@ export function TraitStack({ solId, traits: initial, onSaved }: { solId: string;
   const submit = () => {
     const title = draft.title.trim() || "Untitled";
     if (editing === NEW) return save([...traits, { id: `${Date.now()}`, title, body: draft.body }]);
-    save(traits.map((t) => (t.id === editing ? { ...t, title: isBase(t.title) ? t.title : title, body: draft.body } : t)));
+    save(traits.map((t) => (t.id === editing ? { ...t, title: isBase(t.title, base) ? t.title : title, body: draft.body } : t)));
   };
 
   const editor = (custom: boolean) => (
@@ -56,7 +57,7 @@ export function TraitStack({ solId, traits: initial, onSaved }: { solId: string;
             <Text className="text-xs font-sans-semibold uppercase tracking-widest text-ink-2">{t.title}</Text>
             {editing !== t.id && <Cta ghost label="Edit" onPress={() => open(t)} className="px-3 py-1.5" />}
           </View>
-          {editing === t.id ? editor(!isBase(t.title)) : <Animated.View entering={FADE_IN}><Markdown variant="doc">{t.body}</Markdown></Animated.View>}
+          {editing === t.id ? editor(!isBase(t.title, base)) : <Animated.View entering={FADE_IN}><Markdown variant="doc">{t.body}</Markdown></Animated.View>}
         </View>
       ))}
       {editing === NEW ? (

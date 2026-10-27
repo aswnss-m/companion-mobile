@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, KeyboardAvoidingView, ScrollView, View } from "react-native";
 import Animated from "react-native-reanimated";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import * as Haptics from "expo-haptics";
 import { BUBBLE_IN, CSS_EASE_OUT, FADE_OUT } from "@/lib/motion";
 import { useChat } from "@ai-sdk/react";

@@ -9,11 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.softservedweb.companion",
+      "bundleIdentifier": "com.aswnss.companion",
       "supportsTablet": false
     },
     "android": {
-      "package": "com.softservedweb.companion",
+      "package": "com.aswnss.companion",
       "adaptiveIcon": {
         "backgroundColor": "#F7F3EA",
         "foregroundImage": "./assets/icon.png"

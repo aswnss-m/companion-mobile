@@ -22,8 +22,10 @@ const PICK_OPTIONS: { pick: Pick; title: string; hint: string }[] = [
 ];
 
 /** Import a WhatsApp "Export chat" file, like web's components/whatsapp-import.tsx: pick the file, say who the Sol is,
- *  keep the facts worth keeping. The chat text lives in this component while the dialog is open; only kept facts are saved. */
-export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; solName: string; onSaved: () => void }) {
+ *  keep the facts worth keeping. Without a Sol it reads the user's own messages into their own traits.
+ *  The chat text lives in this component while the dialog is open; only kept facts are saved. */
+export function WhatsAppImport({ solId, solName, onSaved }: { solId?: string; solName?: string; onSaved: () => void }) {
+  const self = !solId || !solName;
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>({ at: "file" });
   const [text, setText] = useState("");
@@ -35,7 +37,7 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
   const [error, setError] = useState<string | null>(null);
 
   const read = (body: { text: string; sender?: string; pick?: Pick }) =>
-    api<{ participants?: Person[]; total?: number; limit?: number; facts?: Fact[] }>(`/api/sols/${solId}/whatsapp`, { method: "POST", body: JSON.stringify(body) });
+    api<{ participants?: Person[]; total?: number; limit?: number; facts?: Fact[] }>(self ? "/api/me/whatsapp" : `/api/sols/${solId}/whatsapp`, { method: "POST", body: JSON.stringify(body) });
 
   function reset(next: boolean) {
     setOpen(next);
@@ -51,7 +53,7 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
     const t = await pickChatText();
     if (!t) return;
     const { participants = [], total = 0, limit = Infinity } = await read({ text: t });
-    const guess = participants.find((p) => p.name.toLowerCase().includes(solName.toLowerCase()) || solName.toLowerCase().includes(p.name.toLowerCase()));
+    const guess = self ? undefined : participants.find((p) => p.name.toLowerCase().includes(solName.toLowerCase()) || solName.toLowerCase().includes(p.name.toLowerCase()));
     setText(t); setSender(guess?.name ?? ""); setStep({ at: "who", people: participants, total, limit });
   });
   const analyse = () => attempt("Reading the chat…", async () => {
@@ -61,7 +63,7 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
     setStep({ at: "facts", facts });
   });
   const save = (facts: Fact[]) => attempt("Saving…", async () => {
-    await api(`/api/sols/${solId}/character`, { method: "POST", body: JSON.stringify({ facts: facts.filter((_, i) => kept.has(i)).map(({ fact, trait }) => ({ fact, trait })) }) });
+    await api(self ? "/api/me/traits" : `/api/sols/${solId}/character`, { method: "POST", body: JSON.stringify({ facts: facts.filter((_, i) => kept.has(i)).map(({ fact, trait }) => ({ fact, trait })) }) });
     reset(false);
     onSaved();
   });
@@ -69,14 +71,16 @@ export function WhatsAppImport({ solId, solName, onSaved }: { solId: string; sol
 
   return (
     <>
-      <ActionCard tint={1} icon={MessagesSquare} title="Import WhatsApp chat" subtitle={`Learn how ${solName} talks`} onPress={() => setOpen(true)} />
+      <ActionCard tint={1} icon={MessagesSquare} title="Import WhatsApp chat" subtitle={self ? "Learn how you talk" : `Learn how ${solName} talks`} onPress={() => setOpen(true)} />
       <Dialog open={open} onOpenChange={reset}>
         <DialogContent className="max-h-[85%] gap-5">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">Import a chat</DialogTitle>
             <DialogDescription>
-              {step.at === "file" ? `In WhatsApp open your chat with ${solName}, tap their name, then Export chat (without media is enough). Pick the .zip or .txt here.`
-                : step.at === "who" ? `Which one is ${solName}?`
+              {step.at === "file" ? (self
+                  ? "In WhatsApp open a chat with someone you talk to a lot, tap their name, then Export chat (without media is enough). Pick the .zip or .txt here. Only your own messages are read for your traits."
+                  : `In WhatsApp open your chat with ${solName}, tap their name, then Export chat (without media is enough). Pick the .zip or .txt here.`)
+                : step.at === "who" ? (self ? "Which one is you?" : `Which one is ${solName}?`)
                 : step.facts.length ? "Untick anything that isn't right. The rest goes into the character."
                 : "Nothing new turned up. The character already covers what this chat shows."}
             </DialogDescription>

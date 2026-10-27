@@ -30,7 +30,7 @@ export default function NewSol() {
     <SafeAreaView className="flex-1 bg-paper">
       <KeyboardAwareScrollView contentContainerClassName="gap-5 px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled">
         <BackLink />
-        <View className="flex-row flex-wrap items-center justify-between gap-3"><Text className="font-serif text-3xl">New Sol</Text><SolGrabDialog /></View>
+        <View className="flex-row flex-wrap items-center justify-between gap-3"><Text className="font-serif text-3xl">New Sol</Text><View><SolGrabDialog /></View></View>
         <View className="gap-1.5"><Text className="text-sm font-sans-medium">Their name</Text><Input value={name} onChangeText={setName} maxLength={80} className="rounded-input" /></View>
         <View className="gap-1.5"><Text className="text-sm font-sans-medium">Who they are to you</Text><Input value={relationship} onChangeText={setRelationship} placeholder="my manager, a friend's friend, my sister" maxLength={80} className="rounded-input" /></View>
         <View className="gap-1.5">
