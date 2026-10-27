@@ -2,11 +2,10 @@ import { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 import Animated from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { FADE_IN, FADE_IN_DOWN, FADE_OUT, staggered } from "@/lib/motion";
-import { PressableScale } from "@/components/pressable-scale";
+import { FADE_IN_DOWN, staggered } from "@/lib/motion";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react-native";
+import { ArrowRight, Check } from "lucide-react-native";
 import { Bloom } from "@/components/bloom";
 import { Chat } from "@/components/chat";
 import { Mascot } from "@/components/mascot";
@@ -40,8 +39,6 @@ export default function ChatPage() {
   const result: (ScenarioResult & { readiness?: number | null }) | null = graded ?? data?.chat.result ?? null;
   const [busy, setBusy] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
-  const [open, setOpen] = useState(true);
-  const colors = useColors();
 
   async function finish() {
     setBusy(true);
@@ -58,11 +55,10 @@ export default function ChatPage() {
   if (chat.kind === "coach")
     return (
       <SafeAreaView className="flex-1 bg-paper">
-        <View className="px-4 pt-4"><BackLink /></View>
         <Chat
           id={`coach-${chat.id}`} api={`/api/chats/${chat.id}/messages`} solId={sol.id} solName={sol.name}
           initialMessages={chat.messages} placeholder={`How should I talk to ${sol.name}?`}
-          header={<Text className="mt-2 text-sm text-ink-2">Coaching for <Text className="text-sm font-sans-medium text-ink">{sol.name}</Text></Text>}
+          title={<Text numberOfLines={1} className="text-sm text-ink-2">Coaching for <Text className="text-sm font-sans-medium text-ink">{sol.name}</Text></Text>}
         />
       </SafeAreaView>
     );
@@ -102,30 +98,19 @@ export default function ChatPage() {
 
   return (
     <SafeAreaView className="flex-1 bg-paper">
-      <View className="px-4 pt-4"><BackLink /></View>
       <Chat
         id={`scenario-${chat.id}`} api={`/api/chats/${chat.id}/messages`} solId={sol.id} solName={sol.name}
         initialMessages={chat.messages} placeholder={`Reply to ${sol.name}`}
-        header={
-          <View className="mt-2 rounded-input bg-card px-4 py-3">
-            <PressableScale row onPress={() => setOpen((o) => !o)} className="flex-row items-center justify-between gap-2" accessibilityRole="button" accessibilityState={{ expanded: open }}>
-              <Text className="shrink text-sm font-sans-medium">{scenario.title}</Text>
-              {open ? <ChevronUp size={16} color={colors.ink} /> : <ChevronDown size={16} color={colors.ink} />}
-            </PressableScale>
-            {open && (
-              <Animated.View entering={FADE_IN} exiting={FADE_OUT}>
-                <Text className="mt-1 text-sm text-ink-2">{scenario.setting}</Text>
-                <Text className="mt-1 text-sm"><Text className="text-sm text-ink-2">Your goal:</Text> {scenario.goal}</Text>
-              </Animated.View>
-            )}
+        title={<Text numberOfLines={1} className="font-sans-medium">{scenario.title}</Text>}
+        action={<Cta ghost label={busy ? "Grading…" : "Finish"} disabled={busy} onPress={finish} accessibilityHint="Ends the scenario and shows how you did" className="px-4 py-2" />}
+        intro={
+          <View className="gap-2 rounded-card border border-rule px-4 py-3">
+            <Text className="font-sans-medium">{scenario.title}</Text>
+            <Text className="text-sm text-ink-2">{scenario.setting}</Text>
+            <Text className="text-sm"><Text className="text-sm text-ink-2">Your goal:</Text> {scenario.goal}</Text>
           </View>
         }
-        footer={
-          <View className="gap-2">
-            <Cta ghost label={busy ? "Grading…" : "End scenario and see how I did"} disabled={busy} onPress={finish} />
-            {gradeError && <Text className="text-sm text-ink-2">{gradeError} Try again.</Text>}
-          </View>
-        }
+        footer={gradeError ? <Text className="text-sm text-ink-2">{gradeError} Try again.</Text> : undefined}
       />
     </SafeAreaView>
   );

@@ -2,16 +2,20 @@ import { useRef, useState } from "react";
 import { Alert, KeyboardAvoidingView, ScrollView, View } from "react-native";
 import Animated from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
+import { ArrowLeft, ArrowUp } from "lucide-react-native";
 import { BUBBLE_IN, CSS_EASE_OUT, FADE_OUT } from "@/lib/motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls, type UIMessage } from "ai";
 import { Cta } from "@/components/cta";
 import { Markdown } from "@/components/markdown";
 import { Mascot } from "@/components/mascot";
+import { PressableScale } from "@/components/pressable-scale";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { AI_MISSING, api, apiFetch } from "@/lib/api";
 import { invalidateCache } from "@/lib/cache";
+import { useColors } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const PULSE = { from: { opacity: 0.25 }, "50%": { opacity: 1 }, to: { opacity: 0.25 } };
@@ -26,9 +30,11 @@ function TypingDots() {
   );
 }
 
-type Props = { id: string; api: string; solId: string; solName: string; initialMessages: UIMessage[]; placeholder?: string; header?: React.ReactNode; footer?: React.ReactNode };
+/** title and action sit in the top bar; intro scrolls with the messages; footer sits under the input. */
+type Props = { id: string; api: string; solId: string; solName: string; initialMessages: UIMessage[]; placeholder?: string; title: React.ReactNode; action?: React.ReactNode; intro?: React.ReactNode; footer?: React.ReactNode };
 
-export function Chat({ id, api: path, solId, solName, initialMessages, placeholder, header, footer }: Props) {
+export function Chat({ id, api: path, solId, solName, initialMessages, placeholder, title, action, intro, footer }: Props) {
+  const colors = useColors();
   const [input, setInput] = useState("");
   const list = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const [mounted] = useState(initialMessages.length); // bubbles after this index animate in
@@ -62,8 +68,16 @@ export function Chat({ id, api: path, solId, solName, initialMessages, placehold
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <View className="px-4 pb-3"><Mascot state={busy ? "thinking" : error ? "sad" : "idle"} height={28} />{header}</View>
+      <View className="flex-row items-center gap-3 border-b border-rule px-4 pb-3 pt-2">
+        <PressableScale onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Back" className="size-10 items-center justify-center rounded-pill bg-card">
+          <ArrowLeft size={20} color={colors.ink} />
+        </PressableScale>
+        <Mascot state={busy ? "thinking" : error ? "sad" : "idle"} height={18} />
+        <View className="min-w-0 flex-1">{title}</View>
+        {action}
+      </View>
       <ScrollView ref={list} className="flex-1" onContentSizeChange={() => list.current?.scrollToEnd({ animated: true })} contentContainerClassName="gap-3 px-4 py-4" keyboardShouldPersistTaps="handled">
+        {intro}
         {messages.map((m, idx) => (
           <Animated.View key={m.id} entering={idx >= mounted ? BUBBLE_IN : undefined} className={cn("max-w-[85%] rounded-card px-4 py-3", m.role === "user" ? "self-end bg-paper-3" : "self-start bg-card")}>
             {m.parts.map((part, i) => {
@@ -97,7 +111,9 @@ export function Chat({ id, api: path, solId, solName, initialMessages, placehold
         )}
         <View className="flex-row items-end gap-2">
           <Textarea value={input} onChangeText={setInput} placeholder={placeholder ?? "Say something"} numberOfLines={3} className="min-h-12 flex-1 rounded-input border-0 bg-paper-2 shadow-none" aria-label="Message" />
-          <Cta label="Send" onPress={submit} disabled={busy || !input.trim()} />
+          <PressableScale onPress={submit} disabled={busy || !input.trim()} accessibilityRole="button" accessibilityLabel="Send" className="size-12 items-center justify-center rounded-pill bg-primary">
+            <ArrowUp size={20} color={colors.ink} />
+          </PressableScale>
         </View>
         {footer}
       </View>
