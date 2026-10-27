@@ -43,3 +43,6 @@ yarn-error.*
 
 # Sentry build credentials (SENTRY_AUTH_TOKEN), read by the iOS upload script
 .env.sentry-build-plugin
+
+# Release build env (API URL, Sentry DSN), kept local
+.env.production
