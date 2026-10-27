@@ -10,6 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.aswnss.companion",
+      "appleTeamId": "4BQVMZ47GU",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false
@@ -93,6 +94,7 @@
         }
       ],
       "expo-font",
+      "./plugins/with-sentry-node-binary",
       [
         "@sentry/react-native/expo",
         {
