@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import * as Sentry from "@sentry/react-native";
 import { Fraunces_500Medium, Fraunces_600SemiBold } from "@expo-google-fonts/fraunces";
 import { PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold } from "@expo-google-fonts/plus-jakarta-sans";
 import { PortalHost } from "@rn-primitives/portal";
@@ -16,10 +17,14 @@ import { cacheOwner } from "@/lib/cache";
 import { getThemePref, useColors } from "@/lib/theme";
 import { colorScheme } from "nativewind";
 
+// No DSN (local dev) means Sentry stays off; .env.production sets it for release builds.
+Sentry.init({ dsn: process.env.EXPO_PUBLIC_SENTRY_DSN, enabled: !!process.env.EXPO_PUBLIC_SENTRY_DSN, tracesSampleRate: 0.2 });
 SplashScreen.preventAutoHideAsync();
 { const pref = getThemePref(); if (pref !== "system") colorScheme.set(pref); } // "system" needs no override on a fresh process
 
-export default function Root() {
+export default Sentry.wrap(Root);
+
+function Root() {
   const [loaded] = useFonts({ Fraunces_500Medium, Fraunces_600SemiBold, PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold });
   const { data: session, isPending } = authClient.useSession();
   // Latch the first settle: the plugin hydrates the saved session before the network check, and later refetches
