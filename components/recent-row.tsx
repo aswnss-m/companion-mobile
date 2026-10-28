@@ -4,12 +4,12 @@ import { PressableScale } from "@/components/pressable-scale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 
-type Props = { avatar: string; title: string; meta: string; chip?: string; onPress: () => void };
+type Props = { avatar: string; title: string; meta: string; chip?: string; onPress: () => void; onLongPress?: () => void };
 
 /** design.md recent-list row: 40px initial circle, title, muted meta, chip (score / state) on the right. */
-export function RecentRow({ avatar, title, meta, chip, onPress }: Props) {
+export function RecentRow({ avatar, title, meta, chip, onPress, onLongPress }: Props) {
   return (
-    <PressableScale row onPress={onPress} className="flex-row items-center gap-3 rounded-card bg-card px-4 py-3">
+    <PressableScale row onPress={onPress} onLongPress={onLongPress} className="flex-row items-center gap-3 rounded-card bg-card px-4 py-3">
       <View className="h-10 w-10 items-center justify-center rounded-pill bg-paper"><Text className="font-serif-semibold text-lg">{avatar[0]?.toUpperCase()}</Text></View>
       <View className="flex-1">
         <Text className="font-sans-medium" numberOfLines={1}>{title}</Text>

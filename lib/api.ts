@@ -30,5 +30,5 @@ export type Me = { traits: Trait[] | null; questions: { q: string; options?: str
 export type Sol = { id: string; name: string; relationship: string; gender: "male" | "female" | "undisclosed"; traits: Trait[]; readiness: number | null; lastMessage?: string | null; createdAt: string; updatedAt: string };
 export type Scenario = { title: string; setting: string; goal: string; openingLine: string };
 export type ScenarioResult = { score: number; summary: string; wentWell: string[]; tryNext: string[] };
-export type Chat = { id: string; solId: string; kind: "coach" | "scenario"; messages: import("ai").UIMessage[]; scenario: Scenario | null; result: ScenarioResult | null; endedAt: string | null; createdAt: string };
-export type SolDetail = { sol: Sol; coachChats: Chat[]; scenarios: Chat[] };
+export type Chat = { id: string; solId: string; kind: "coach" | "scenario"; messages: import("ai").UIMessage[]; scenario: Scenario | null; result: ScenarioResult | null; endedAt: string | null; archivedAt: string | null; createdAt: string };
+export type SolDetail = { sol: Sol; coachChats: Chat[]; scenarios: Chat[]; archived: Chat[] };

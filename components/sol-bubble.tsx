@@ -9,14 +9,14 @@ export { timeAgo };
 
 const TINTS = ["bg-bubble-1", "bg-bubble-2", "bg-bubble-3", "bg-bubble-4"];
 
-type Props = { sol: Sol; index: number; onPress?: () => void; badge?: string | null; preview?: string; title?: string; time?: string };
+type Props = { sol: Sol; index: number; onPress?: () => void; onLongPress?: () => void; badge?: string | null; preview?: string; title?: string; time?: string };
 
 /** Speech-bubble row: tint rotates by index; badge defaults to readiness, pass null for none. */
-export function SolBubble({ sol, index, onPress, badge, preview, title, time }: Props) {
+export function SolBubble({ sol, index, onPress, onLongPress, badge, preview, title, time }: Props) {
   const tint = TINTS[index % TINTS.length];
   const b = badge === undefined ? (sol.readiness == null ? null : String(sol.readiness)) : badge;
   return (
-    <PressableScale row onPress={onPress ?? (() => router.push(`/sols/${sol.id}`))} className={`rounded-card p-4 ${tint}`}>
+    <PressableScale row onPress={onPress ?? (() => router.push(`/sols/${sol.id}`))} onLongPress={onLongPress} className={`rounded-card p-4 ${tint}`}>
       <View className={`absolute -bottom-1.5 left-6 h-3.5 w-3.5 rotate-45 ${tint}`} />
       <View className="flex-row items-center gap-3">
         <View className="h-11 w-11 items-center justify-center rounded-pill bg-paper"><Text className="font-serif-semibold text-lg">{sol.name[0]?.toUpperCase()}</Text></View>

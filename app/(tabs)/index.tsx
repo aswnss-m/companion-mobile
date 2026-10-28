@@ -13,6 +13,8 @@ import { Text } from "@/components/ui/text";
 import type { Me } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { takeOnboarding } from "@/lib/onboarding";
+import { SwipeChat } from "@/components/swipe-chat";
+import { chatMenu } from "@/lib/chat-menu";
 import { chatChip, chatLabel, rankLabel, timeAgo } from "@/lib/readiness";
 import { useStartScenario } from "@/lib/scenario";
 import { useColors } from "@/lib/theme";
@@ -50,7 +52,7 @@ export default function Dashboard() {
           {error && !chats ? <EmptyState text={error} actionLabel="Retry" onPress={refresh} />
             : !chats ? <RecentSkeleton />
             : chats.length === 0 ? <EmptyState text="Nothing yet. Scenarios and coach chats land here." actionLabel={next ? "Start a scenario" : "New Sol"} onPress={next ? () => start(next.id) : () => router.push("/sols/new")} />
-            : <View className="gap-2">{chats.slice(0, 6).map((c) => <RecentRow key={c.id} avatar={c.sol.name} title={chatLabel(c)} meta={`${c.sol.name} · ${timeAgo(c.createdAt)}`} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} />)}</View>}
+            : <View className="gap-2">{chats.slice(0, 6).map((c) => <SwipeChat key={c.id} chat={c} onDone={refresh}><RecentRow avatar={c.sol.name} title={chatLabel(c)} meta={`${c.sol.name} · ${timeAgo(c.createdAt)}`} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} onLongPress={() => chatMenu(c, refresh)} /></SwipeChat>)}</View>}
         </View>
 
         {sols && sols.length > 0 && (

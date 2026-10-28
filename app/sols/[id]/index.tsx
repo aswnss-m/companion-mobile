@@ -1,11 +1,11 @@
 import { useRef } from "react";
-import { RefreshControl, View } from "react-native";
+import { Alert, RefreshControl, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Fingerprint, LifeBuoy, MessageSquareText } from "lucide-react-native";
 import { ActionCard } from "@/components/action-card";
-import { BackLink } from "@/components/cta";
+import { BackLink, Cta } from "@/components/cta";
 import { EmptyState, RecentRow } from "@/components/recent-row";
 import { RankChip, ReadinessBar } from "@/components/sol-card";
 import { TraitStack } from "@/components/trait-stack";
@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WhatsAppImport } from "@/components/whatsapp-import";
 import { Text } from "@/components/ui/text";
 import { api, type Sol, type SolDetail } from "@/lib/api";
+import { SwipeChat } from "@/components/swipe-chat";
+import { chatMenu } from "@/lib/chat-menu";
 import { chatChip, chatLabel, isOpen, timeAgo } from "@/lib/readiness";
 import { useStartScenario } from "@/lib/scenario";
 import { useApi } from "@/lib/use-api";
@@ -27,6 +29,10 @@ export default function SolPage() {
   const graded = data?.scenarios.filter((c) => c.result) ?? [];
   // Everything except the open scenario shown in the Continue card.
   const past = data?.scenarios.filter((c) => c !== open) ?? [];
+  const deleteSol = () => data && Alert.alert(`Delete ${data.sol.name}?`, "Their character, chats and scores are gone for good.", [
+    { text: "Cancel", style: "cancel" },
+    { text: "Delete", style: "destructive", onPress: () => api(`/api/sols/${id}`, { method: "DELETE" }).then(() => router.back(), (e: Error) => Alert.alert("Couldn't delete", e.message)) },
+  ]);
   return (
     <SafeAreaView className="flex-1 bg-paper">
       <KeyboardAwareScrollView ref={scroll} contentContainerClassName="px-4 pt-4 pb-10" keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
@@ -53,15 +59,27 @@ export default function SolPage() {
             <View className="mt-10 gap-2">
               <Text className="mb-1 font-sans-semibold">Past scenarios</Text>
               {past.length === 0 ? <EmptyState text="No scenarios yet. Start one and Companion sets the scene." actionLabel="Start a scenario" onPress={() => start(data.sol.id)} /> : past.map((c) => (
-                <RecentRow key={c.id} avatar={data.sol.name} title={chatLabel(c)} meta={timeAgo(c.createdAt)} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} />
+                <SwipeChat key={c.id} chat={c} onDone={reload}><RecentRow avatar={data.sol.name} title={chatLabel(c)} meta={timeAgo(c.createdAt)} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} onLongPress={() => chatMenu(c, reload)} /></SwipeChat>
               ))}
+              {past.length > 0 && <Text className="text-xs text-ink-2">Swipe left or long-press a chat to archive or delete it.</Text>}
             </View>
+
+            {data.archived?.length > 0 && (
+              <View className="mt-10 gap-2">
+                <Text className="mb-1 font-sans-semibold">Archived</Text>
+                {data.archived.map((c) => (
+                  <SwipeChat key={c.id} chat={c} onDone={reload}><RecentRow avatar={data.sol.name} title={chatLabel(c)} meta={timeAgo(c.createdAt)} chip={chatChip(c)} onPress={() => router.push(`/chats/${c.id}`)} onLongPress={() => chatMenu(c, reload)} /></SwipeChat>
+                ))}
+              </View>
+            )}
 
             <View className="mt-10 gap-3" onLayout={(e) => (characterY.current = e.nativeEvent.layout.y)}>
               <Text className="font-sans-semibold">Character</Text>
               {/* TraitStack PATCHes the whole list, so never seed it from a possibly stale cache */}
               {fresh ? <TraitStack key={data.sol.updatedAt} traits={data.sol.traits} save={(traits) => api<Sol>(`/api/sols/${data.sol.id}`, { method: "PATCH", body: JSON.stringify({ traits }) }).then((s) => s.traits)} onSaved={reload} /> : error ? <EmptyState text={error} actionLabel="Retry" onPress={reload} /> : <Skeleton className="h-40 rounded-card" />}
             </View>
+
+            <Cta ghost label={`Delete ${data.sol.name}`} onPress={deleteSol} className="mt-10 self-start" />
           </>
         )}
       </KeyboardAwareScrollView>

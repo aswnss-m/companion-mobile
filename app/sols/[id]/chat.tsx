@@ -8,6 +8,8 @@ import { SolBubble, timeAgo } from "@/components/sol-bubble";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { api, type Chat, type SolDetail } from "@/lib/api";
+import { SwipeChat } from "@/components/swipe-chat";
+import { chatMenu } from "@/lib/chat-menu";
 import { chatTitle } from "@/lib/readiness";
 import { useApi } from "@/lib/use-api";
 
@@ -35,7 +37,7 @@ export default function CoachHistory() {
             <View className="mt-8 gap-3">
               {data.coachChats.length === 0 && <EmptyState text={`No chats yet. Ask anything about talking to ${data.sol.name}.`} actionLabel="New chat" onPress={newChat} />}
               {data.coachChats.map((c, i) => (
-                <SolBubble key={c.id} sol={data.sol} index={i} badge={null} title={chatTitle(c.messages)} preview={preview(c)} time={timeAgo(c.createdAt)} onPress={() => router.push(`/chats/${c.id}`)} />
+                <SwipeChat key={c.id} chat={c} onDone={reload}><SolBubble sol={data.sol} index={i} badge={null} title={chatTitle(c.messages)} preview={preview(c)} time={timeAgo(c.createdAt)} onPress={() => router.push(`/chats/${c.id}`)} onLongPress={() => chatMenu(c, reload)} /></SwipeChat>
               ))}
             </View>
           </>
